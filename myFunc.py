@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+
 def isolateColors(imageName, resizeX, resizeY, thresh):
     # grab an image from the camera
     image = cv2.imread(imageName)
@@ -25,9 +26,9 @@ def isolateColors(imageName, resizeX, resizeY, thresh):
                 image[y, x] = 0, 0, 0
     return image
 
-def mapToBinary(image) :
+def mapToBinary(anArray) :
 
-    return image/255    
+    return np.ceil(anArray/255)    
    
 
 def convertToGrayScale(image):

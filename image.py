@@ -22,7 +22,7 @@ while True:
 		# mean_y = acc_y / acc_count
 
 	gray_image = mf.convertToGrayScale(image)
-	gray_image = mf.mapToBinary(gray_image)
+	mArray = mf.mapToBinary(gray_image)
 		# # draw a small cross in red at the mean position
 		# image[mean_x + 0, mean_y - 1] = 255, 0, 0
 		# image[mean_x - 1, mean_y + 0] = 255, 0, 0
@@ -31,6 +31,6 @@ while True:
 		# image[mean_x + 0, mean_y + 1] = 255, 0, 0
 	# display the image on the viewer
 
-	print(gray_image [10, 10])
-	cv2.imshow("images", gray_image)
+	print (mArray)
+	cv2.imshow("images", mArray)
 	cv2.waitKey(0)
