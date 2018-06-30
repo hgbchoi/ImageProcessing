@@ -39,12 +39,20 @@ def convertToGrayScale(image):
 def detectStripHeight(anArray):
     for x in range(anArray.shape[1]-1):
         for y in range(anArray.shape[0]-1):
-            if anArray[x, y] == 1 and anArray[x + 1, y + 1] == 1:
-                return x
+            if anArray[y, x] == 1 and anArray[y + 1, x + 1] == 1 and anArray[y + 1, x] == 1 and anArray[y, x + 1] == 1:
+                return y
     return -1
              
-
-
+def oneDimensionalize(anArray):
+    
+    oneDimensional = []
+    for i in range (0, anArray.shape[0] - 1) :
+            print(anArray[i, :].mean())
+            if (anArray[i, :].mean() > 0.2) :
+                oneDimensional.append(1)
+            else :
+                oneDimensional.append(0)
+    return oneDimensional;
     #Will take processed array as param of the whole strip an return an array of strip heights'
     
 
@@ -66,4 +74,10 @@ def fillBetweenStrips(anArray, stripCount, stripHeights):
         strips += 2
     return anArray
 
+def fillBetweenStrips1D(anArray) :
+    
+    for i in range (0, len(anArray) - 2) :
+        if anArray[i] == 1 and anArray[i+1] == 0:
+            anArray[i+1] = 1
 
+    return anArray
