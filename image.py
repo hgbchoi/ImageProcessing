@@ -26,20 +26,37 @@ while True:
 	
 	CAPTURES_PER_STRIP = 5
     
-	tempStripHeight = 0
+	
+	
+	#This will be sent to Arduino
+	while byteReceived != b'S':
+            try:
+                byteReceived = ser.read().strip()
+                byteReceived = byteReceived.strip()
+                print("Waiting For S: " + byteReceived)
+            except:
+                pass
+            
+        ser.write('S')
+        print("Sent S")
+        
+        tempStripHeight = 0
 	stripHeights = []
 	stripCount = 0
 	numCaptures = 0
-	
-	#This will be sent to Arduino
 
-	while numCaptures < CAPTURES_PER_STRIP:
+        while numCaptures < CAPTURES_PER_STRIP:
             
             while byteReceived != b'C':
                 try:
-                    byteReceived = ser.read()
-                    byteReceived = byteReceived.strip()
-                    print(byteReceived);
+                    byteReceived = ser.read().strip()
+                    print("Waiting for C: " + byteReceived);
+                    if (byteReceived == b'S'):
+                        tempStripHeight = 0
+                        stripHeights = []
+                        stripCount = 0
+                        numCaptures = 0
+                        ser.write('S')
                 except:
                     pass
             
@@ -47,7 +64,7 @@ while True:
             take_image()
             image = cv2.imread('green_tape.png')
             image = cv2.resize(image, (30, 30))
-            image = mf.isolateColors(image, 5)
+            image = mf.isolateColors(image, 10)
             
             if numCaptures == 0:
                 fullArray = np.zeros((image.shape[0] * CAPTURES_PER_STRIP, image.shape[1]))
@@ -66,18 +83,18 @@ while True:
             numCaptures += 1
 
 
-        while byteReceived != b'R':
+        while (byteReceived != b'R') and (byteReceived != b'S'):
              try:
-                byteReceived = ser.read()
+                byteReceived = ser.read().strip()
                 byteReceived = byteReceived.strip()
-                print(byteReceived)
+                print("Waiting for R or S: " + byteReceived)
              except:
                 pass
         
-        print("RECEIVED R")
-        byteReceived = '0'
-        fullArray = mf.fillBetweenStrips(fullArray, stripCount, stripHeights)
-        ser.write(mf.oneDimensionalize(fullArray));
-        print(mf.oneDimensionalize(fullArray));
-	cv2.imshow("images", fullArray)
-	cv2.waitKey(0);
+        if (byteReceived == b'R'):
+            
+            byteReceived = '0'
+            fullArray = mf.fillBetweenStrips(fullArray, stripCount, stripHeights)
+            ser.write(mf.oneDimensionalize(fullArray));
+            print(mf.oneDimensionalize(fullArray));
+     
