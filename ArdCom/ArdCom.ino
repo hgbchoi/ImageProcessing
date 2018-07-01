@@ -1,6 +1,7 @@
 //byte index
 //Y = PaintBot On
 //N = PaintBot Off
+//S = Start Signal
 //R = PaintBot Ready to receive array
 //H = Hall Effect Triggered
 //C = Capture Image (PI)
@@ -28,9 +29,20 @@ void loop() {
   
   
      activeStatePB();
-     Serial.println("Off"); 
+     memset(data,0,sizeof(data));
      
      while (active == 1){
+       Serial.print('S');
+       
+       byteReceived = Serial.read();
+       
+       while (byteReceived != 'S'){
+       
+          byteReceived = Serial.read(); 
+          delay(100);
+         
+       }
+       
        
        //PaintBot Control Code Goes Here
        
@@ -68,29 +80,36 @@ void activeStatePB(){
 
 void commandPItoCapture() {
   int numCaptures = 0;
-  activeStatePB();
+  
   while (numCaptures < CAPTURES_PER_STRIP){
-    activeStatePB(); 
+    
+    if (Serial.available() > 0) {
+    byteReceived = Serial.read();
+    if (byteReceived == 'N'){
+      active = 0;
+      i = 0;
+      cycle = 0;
+      return;
+      }
+    }
     delay(3000);
     Serial.print("C");
     numCaptures++;
-    Serial.print(numCaptures);
   }
 }
 
 
 void getNextStripData() {
   
+  delay(2000);
   i = 0;
   int bytes_read = 0;
+  if (active == 1){
   Serial.print("R");
    while (bytes_read < EXPECTED_PIXEL_COUNT){
      while (Serial.available() > 0){
      byteReceived = Serial.read();
      switch (byteReceived){        
-         case 'Y' :
-            active = 1;
-            break;
          case 'N':
             active = 0;
             i = 0;
@@ -101,8 +120,9 @@ void getNextStripData() {
             bytes_read++;
             i++;                  
      }
-           
+     }      
   }
+  
   }
 }
 

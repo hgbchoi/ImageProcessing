@@ -13,7 +13,6 @@ from bluetooth import *
 
 #setup serial communication
 ser = serial.Serial('/dev/ttyACM0',9600)
-ser.flushInput()
 
 server_sock=BluetoothSocket( RFCOMM )
 server_sock.bind(("",PORT_ANY))
@@ -47,12 +46,12 @@ while True:
 		elif data == 'on':
 			data = 'SENDING ON!'
 			ser.write(b'Y')
-                        p = subprocess.Popen("python /home/pi/Documents/ImageProcessing/image.py 1",stdout=subprocess.PIPE, shell = True,preexec_fn=os.setsid)
+                        #p = subprocess.Popen("python /home/pi/Documents/ImageProcessing/image.py 1",stdout=subprocess.PIPE, shell = True,preexec_fn=os.setsid)
 
 		elif data == 'off':
 			data = 'SENDING OFF!'
 			ser.write(b'N')
-                        os.killpg(p.pid, 9)
+                        #os.killpg(p.pid, 9)
                 else:
 			data = 'WTF!' 
 	        client_sock.send(data)
