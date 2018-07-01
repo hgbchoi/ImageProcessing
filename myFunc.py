@@ -11,17 +11,8 @@ def isolateColors(image, thresh):
     
     for x in range(0 , width-1):
         for y in range(0, height-1):
-	    #get the value of the current pixel
-            red, green, blue = image[y, x]
-
-			# check if the red intensity is greater than green and blue
-            if green > red + thresh and green > blue + thresh:
-				# accumulate x and y of found pixel
-				# acc_x += x
-				# acc_y += y
-				# increment the accumulated pixels' count
-				# acc_count += 1
-				# colour pixels which pass the test black
+            blue, green, red = image[y, x]		
+            if green > red - 10 + thresh and green > blue + thresh :
                 image[y, x] = 255, 255, 255
             else :
                 image[y, x] = 0, 0, 0
@@ -47,8 +38,7 @@ def oneDimensionalize(anArray):
     
     oneDimensional = []
     for i in range (0, anArray.shape[0] - 1) :
-            print(anArray[i, :].mean())
-            if (anArray[i, :].mean() > 0.2) :
+            if (anArray[i, :].mean() > 0.1) :
                 oneDimensional.append(1)
             else :
                 oneDimensional.append(0)
@@ -72,12 +62,4 @@ def fillBetweenStrips(anArray, stripCount, stripHeights):
                 anArray[i, j] = 1
         stripCount -= 2
         strips += 2
-    return anArray
-
-def fillBetweenStrips1D(anArray) :
-    
-    for i in range (0, len(anArray) - 2) :
-        if anArray[i] == 1 and anArray[i+1] == 0:
-            anArray[i+1] = 1
-
     return anArray

@@ -47,7 +47,7 @@ while True:
 		elif data == 'on':
 			data = 'SENDING ON!'
 			ser.write(b'Y')
-                        #p = subprocess.Popen("python /home/pi/Documents/ImageProcessing/seria_test.py 1",stdout=subprocess.PIPE, shell = True,preexec_fn=os.setsid)
+                        p = subprocess.Popen("python /home/pi/Documents/ImageProcessing/image.py 1",stdout=subprocess.PIPE, shell = True,preexec_fn=os.setsid)
 
 		elif data == 'off':
 			data = 'SENDING OFF!'
