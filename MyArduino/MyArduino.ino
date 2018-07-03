@@ -25,31 +25,9 @@ Serial.begin(9600);              //Starting serial communication
 CAPTURES_PER_STRIP = 5; 
 EXPECTED_PIXEL_COUNT = 149;
 
+pinMode (7, INPUT);
+
  
-  DriveMotorBL.attach(DriveMotorPinBL);
-  DriveMotorBR.attach(DriveMotorPinBR);
-  DriveMotorFL.attach(DriveMotorPinFL);
-  DriveMotorFR.attach(DriveMotorPinFR);
-  
-  PivotMotorBL.attach(PivotMotorPinBL);
-  PivotMotorBR.attach(PivotMotorPinBR);
-  PivotMotorFL.attach(PivotMotorPinFL);
-  PivotMotorFR.attach(PivotMotorPinFR);
-
-  TowerMotor.attach(TowerMotorPin);
-
-  pinMode(trigPinFL, OUTPUT);
-  pinMode(echoPinFL, INPUT); 
-
-  pinMode(trigPinFR, OUTPUT); 
-  pinMode(echoPinFR, INPUT); 
-
-  pinMode(trigPinSL, OUTPUT);
-  pinMode(echoPinSL, INPUT); 
-
-  pinMode(trigPinSR, OUTPUT); 
-  pinMode(echoPinSR, INPUT);
-
 }
 
   
@@ -111,6 +89,7 @@ void commandPItoCapture() {
   int numCaptures = 0;
   
   while (numCaptures < CAPTURES_PER_STRIP){
+    hallState = digitalRead(7);
     delay(2000);
     if (Serial.available() > 0) {
     byteReceived = Serial.read();
@@ -119,10 +98,11 @@ void commandPItoCapture() {
       i = 0;
       cycle = 0;
       return;
+      
       }
     }
     
-    if (hallstate = HIGH){
+    if (hallState == HIGH){
     Serial.print("C");    
     numCaptures++;
     }

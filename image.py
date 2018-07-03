@@ -1,5 +1,6 @@
 # Import the necessary packages
 import numpy as np
+import RPi.GPIO as GPIO
 import myFunc as mf
 import picamera
 import time
@@ -10,6 +11,13 @@ import struct
 
 ser = serial.Serial('/dev/ttyACM0',9600, timeout = 1)
 byteReceived = '0'
+oneDArray = [];
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(12, GPIO.OUT)
+p = GPIO.PWM(12, 50)
+p.start(7.5)
+
 
 def take_image():
     
@@ -18,7 +26,7 @@ def take_image():
            
             camera.resolution = (500,500)
             camera.start_preview()
-            time.sleep(1)
+            time.sleep(0.2)
             camera.capture("green_tape.png")
 
 
@@ -95,6 +103,8 @@ while True:
             
             byteReceived = '0'
             fullArray = mf.fillBetweenStrips(fullArray, stripCount, stripHeights)
-            ser.write(mf.oneDimensionalize(fullArray));
-            print(mf.oneDimensionalize(fullArray));
+            oneDArray = (mf.oneDimensionalize(fullArray));
+            ser.write(oneDArray)
+            print(oneDArray)
+            print("Data Length: " +  str(len(oneDArray)));
      
