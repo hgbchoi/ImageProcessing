@@ -21,17 +21,19 @@ int CAPTURES_PER_STRIP; //Number of images to Capture in one cycle
 int data[500]; //Buffer for pixel data
 char byteReceived = '0'; //Byte received from PI
 
+byte towerMoving = 0;
+
 void setup() {
   
 Serial.begin(9600);              //Starting serial communication
 
 CAPTURES_PER_STRIP = 5; 
-EXPECTED_PIXEL_COUNT = 149;
-//triggerServo.attach(13);
-//triggerServo.write(90);
-//attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
+EXPECTED_PIXEL_COUNT = 49;
+triggerServo.attach(13);
+triggerServo.write(90);
+attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
 
-//pinMode (7, INPUT);
+pinMode (7, INPUT);
 
  
 }
@@ -59,10 +61,20 @@ void loop() {
        
        //PaintBot Control Code Goes Here
        
-       
-       commandPItoCapture();// will have to be integrated with the movement of tower
-        // Receives data for next cycle
+       towerMoving = 1;       
+       //commandPItoCapture();// will have to be integrated with the movement of tower
+       // Receives data for next cycle
+       while (Serial.available() == 0){
+         delay(100);
+       }
+       byteReceived = Serial.read();
+       if (byteReceived == 'D'){
        getNextStripData();
+       } else if (byteReceived == 'N'){
+          active = 0;
+           i = 0;
+           cycle = 0;
+       }
        cycle++;         
       }
     
@@ -135,9 +147,10 @@ void getNextStripData() {
   }
 }
 
-/*
+
 void magnet_detect()//This function is called whenever a magnet/interrupt is detected by the arduino
  {
+   if(towerMoving == 1){
    Serial.print("C");    
 
    if (data[j] == 1){
@@ -150,9 +163,10 @@ void magnet_detect()//This function is called whenever a magnet/interrupt is det
    if (j == 150){
      j = 0;
    } 
+   }
     
  }
- */
+ 
 
 
 

@@ -71,7 +71,7 @@ while True:
             byteReceived = '0'            
             take_image()
             image = cv2.imread('green_tape.png')
-            image = cv2.resize(image, (30, 30))
+            image = cv2.resize(image, (30, 10))
             image = mf.isolateColors(image, 10)
             
             if numCaptures == 0:
@@ -90,7 +90,7 @@ while True:
                   		            
             numCaptures += 1
 
-
+        ser.write(b'D')
         while (byteReceived != b'R') and (byteReceived != b'S'):
              try:
                 byteReceived = ser.read().strip()
