@@ -12,7 +12,7 @@ def isolateColors(image, thresh):
     for x in range(0 , width-1):
         for y in range(0, height-1):
             blue, green, red = image[y, x]		
-            if green > red - 17 + thresh and green > blue + thresh :
+            if green > red - 7 + thresh and green > blue + thresh :
                 image[y, x] = 255, 255, 255
             else :
                 image[y, x] = 0, 0, 0

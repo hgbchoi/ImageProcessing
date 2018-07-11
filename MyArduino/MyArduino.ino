@@ -9,9 +9,12 @@
 #include <Servo.h>
 
 
+Servo triggerServo;
+
 int active = 0;
 int hallState = 0;
 int i = 0;
+int j = 0;
 int cycle = 0;
 int EXPECTED_PIXEL_COUNT; //Number of pixels the Arduino will receive
 int CAPTURES_PER_STRIP; //Number of images to Capture in one cycle
@@ -24,8 +27,11 @@ Serial.begin(9600);              //Starting serial communication
 
 CAPTURES_PER_STRIP = 5; 
 EXPECTED_PIXEL_COUNT = 149;
+//triggerServo.attach(13);
+//triggerServo.write(90);
+//attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
 
-pinMode (7, INPUT);
+//pinMode (7, INPUT);
 
  
 }
@@ -35,8 +41,8 @@ pinMode (7, INPUT);
 void loop() {
   
   
-     activeStatePB();
-     memset(data,0,sizeof(data));
+      activeStatePB();
+      memset(data,0,sizeof(data));
      
      while (active == 1){
        Serial.print('S');
@@ -54,16 +60,11 @@ void loop() {
        //PaintBot Control Code Goes Here
        
        
-       //commandPItoCapture() will have to be integrated with the movement of tower
-       commandPItoCapture();
-       
-       
-       delay(1000);
-       
-       //Receives data for next cycle
+       commandPItoCapture();// will have to be integrated with the movement of tower
+        // Receives data for next cycle
        getNextStripData();
        cycle++;         
-    }
+      }
     
 }
 
@@ -89,8 +90,9 @@ void commandPItoCapture() {
   int numCaptures = 0;
   
   while (numCaptures < CAPTURES_PER_STRIP){
-    hallState = digitalRead(7);
     delay(2000);
+    Serial.print("C");    
+
     if (Serial.available() > 0) {
     byteReceived = Serial.read();
     if (byteReceived == 'N'){
@@ -101,11 +103,7 @@ void commandPItoCapture() {
       
       }
     }
-    
-    if (hallState == HIGH){
-    Serial.print("C");    
     numCaptures++;
-    }
   }
 }
 
@@ -136,6 +134,26 @@ void getNextStripData() {
   
   }
 }
+
+/*
+void magnet_detect()//This function is called whenever a magnet/interrupt is detected by the arduino
+ {
+   Serial.print("C");    
+
+   if (data[j] == 1){
+     triggerServo.write(0);
+   }
+   else {
+     triggerServo.write(180); 
+   }
+   j++;
+   if (j == 150){
+     j = 0;
+   } 
+    
+ }
+ */
+
 
 
 
