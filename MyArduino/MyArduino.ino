@@ -3,7 +3,6 @@
 //N = PaintBot Off
 //S = Start Signal
 //R = PaintBot Ready to receive array
-//H = Hall Effect Triggered
 //C = Capture Image (PI)
 
 #include <Servo.h>
@@ -11,11 +10,12 @@
 
 Servo triggerServo;
 
-int active = 0;
 int hallState = 0;
+int cycle = 0;
+int active = 0;
+
 int i = 0;
 int j = 0;
-int cycle = 0;
 int EXPECTED_PIXEL_COUNT; //Number of pixels the Arduino will receive
 int CAPTURES_PER_STRIP; //Number of images to Capture in one cycle
 int data[500]; //Buffer for pixel data
@@ -27,8 +27,9 @@ void setup() {
   
 Serial.begin(9600);              //Starting serial communication
 
+
 CAPTURES_PER_STRIP = 5; 
-EXPECTED_PIXEL_COUNT = 49;
+EXPECTED_PIXEL_COUNT = 5;
 triggerServo.attach(13);
 triggerServo.write(90);
 attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
@@ -42,7 +43,9 @@ pinMode (7, INPUT);
 
 void loop() {
   
-  
+    i = 0;
+    j = 0;
+    
       activeStatePB();
       memset(data,0,sizeof(data));
      
@@ -151,16 +154,19 @@ void getNextStripData() {
 void magnet_detect()//This function is called whenever a magnet/interrupt is detected by the arduino
  {
    if(towerMoving == 1){
-   Serial.print("C");    
+   
+     
+     Serial.print("C");    
+   
+   
 
    if (data[j] == 1){
      triggerServo.write(0);
-   }
-   else {
+   } else {
      triggerServo.write(180); 
    }
    j++;
-   if (j == 150){
+   if (j == 5){
      j = 0;
    } 
    }

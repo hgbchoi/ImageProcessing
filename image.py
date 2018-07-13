@@ -24,10 +24,11 @@ def take_image():
         with picamera.PiCamera() as camera:
            
            
-            camera.resolution = (500,500)
+            camera.resolution = (200,100)
             camera.start_preview()
             time.sleep(0.2)
             camera.capture("green_tape.png")
+
 
 
 while True:
@@ -71,22 +72,22 @@ while True:
             byteReceived = '0'            
             take_image()
             image = cv2.imread('green_tape.png')
-            image = cv2.resize(image, (30, 10))
+            image = cv2.resize(image, (30, 1))
             image = mf.isolateColors(image, 10)
+            height, width, channels = image.shape;
             
             if numCaptures == 0:
-                fullArray = np.zeros((image.shape[0] * CAPTURES_PER_STRIP, image.shape[1]))
+                fullArray = np.zeros((height * CAPTURES_PER_STRIP, width))
                     
 
             gray_image = mf.convertToGrayScale(image)
-            mArray = mf.mapToBinary(gray_image)
-            tempStripHeight = mf.detectStripHeight(mArray)
+            tempStripHeight = mf.detectStripHeight(gray_image)
             
             if tempStripHeight != -1 :
-                stripHeights.append(tempStripHeight + numCaptures*image.shape[1])
+                stripHeights.append(tempStripHeight + numCaptures*height)
                 stripCount += 1
             
-            fullArray[image.shape[0]*numCaptures:image.shape[0]*(numCaptures + 1) - 1, 0:image.shape[1]-1] = mArray[0:image.shape[0] - 1, 0:image.shape[1] - 1]
+            fullArray[height*numCaptures:height*(numCaptures + 1), 0:width] = gray_image[0:height, 0:width]
                   		            
             numCaptures += 1
 

@@ -9,11 +9,11 @@ def isolateColors(image, thresh):
     height, width, channels = image.shape
 	# iterate over every pixel
     
-    for x in range(0 , width-1):
-        for y in range(0, height-1):
+    for x in range(0 , width):
+        for y in range(0, height):
             blue, green, red = image[y, x]		
             if green > red - 7 + thresh and green > blue + thresh :
-                image[y, x] = 255, 255, 255
+                image[y, x] = 1, 1, 1
             else :
                 image[y, x] = 0, 0, 0
 
@@ -37,7 +37,7 @@ def detectStripHeight(anArray):
 def oneDimensionalize(anArray):
     
     oneDimensional = []
-    for i in range (0, anArray.shape[0] - 1) :
+    for i in range (0, anArray.shape[0]) :
             if (anArray[i, :].mean() > 0.2) :
                 oneDimensional.append(1)
             else :
