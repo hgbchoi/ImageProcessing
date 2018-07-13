@@ -77,17 +77,18 @@ while True:
             height, width, channels = image.shape;
             
             if numCaptures == 0:
-                fullArray = np.zeros((height * CAPTURES_PER_STRIP, width))
+                fullArray = np.zeros((height * CAPTURES_PER_STRIP))
                     
 
             gray_image = mf.convertToGrayScale(image)
-            tempStripHeight = mf.detectStripHeight(gray_image)
+            gray_image = mf.oneDimensionalize(gray_image)
+            tempStripHeight = mf.detectStripIndex(gray_image)
             
             if tempStripHeight != -1 :
                 stripHeights.append(tempStripHeight + numCaptures*height)
                 stripCount += 1
             
-            fullArray[height*numCaptures:height*(numCaptures + 1), 0:width] = gray_image[0:height, 0:width]
+            fullArray[height*numCaptures:height*(numCaptures + 1)] = gray_image[0:height]
                   		            
             numCaptures += 1
 
@@ -103,8 +104,7 @@ while True:
         if (byteReceived == b'R'):
             
             byteReceived = '0'
-            fullArray = mf.fillBetweenStrips(fullArray, stripCount, stripHeights)
-            oneDArray = (mf.oneDimensionalize(fullArray));
+            oneDArray = mf.fillBetweenStrips1D(fullArray, stripCount, stripHeights)
             ser.write(oneDArray)
             print(oneDArray)
             print("Data Length: " +  str(len(oneDArray)));

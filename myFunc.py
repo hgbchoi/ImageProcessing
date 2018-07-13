@@ -33,7 +33,14 @@ def detectStripHeight(anArray):
             if anArray[y, x] == 1 and anArray[y + 1, x + 1] == 1 and anArray[y + 1, x] == 1 and anArray[y, x + 1] == 1:
                 return y
     return -1
-             
+
+def detectStripIndex(anArray):
+    for i in range(len(anArray)):
+        if (anArray[i] == 1):
+                return i;
+            
+    return -1;
+
 def oneDimensionalize(anArray):
     
     oneDimensional = []
@@ -60,6 +67,16 @@ def fillBetweenStrips(anArray, stripCount, stripHeights):
         for i in range (stripHeights[strips], stripHeights[strips + 1]):
             for j in range (0, width):
                 anArray[i, j] = 1
+        stripCount -= 2
+        strips += 2
+    return anArray
+
+def fillBetweenStrips1D(anArray, stripCount, stripHeights):
+
+    strips = 0
+    while stripCount >= 2:
+        for i in range (stripHeights[strips], stripHeights[strips + 1]):
+            anArray[i] = 1
         stripCount -= 2
         strips += 2
     return anArray
