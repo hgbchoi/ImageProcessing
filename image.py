@@ -72,7 +72,7 @@ while True:
             byteReceived = '0'            
             take_image()
             image = cv2.imread('green_tape.png')
-            image = cv2.resize(image, (30, 1))
+            image = cv2.resize(image, (30, 5))
             image = mf.isolateColors(image, 10)
             height, width, channels = image.shape;
             
@@ -105,8 +105,9 @@ while True:
             
             byteReceived = '0'
             oneDArray = mf.fillBetweenStrips1D(fullArray, stripCount, stripHeights)
+            oneDArray = mf.listify(oneDArray)
             ser.write(oneDArray)
             print(oneDArray)
-            print("Data Length: " +  str(len(oneDArray)));
+            print("Data Length: " +  str(len(oneDArray)))
      
   

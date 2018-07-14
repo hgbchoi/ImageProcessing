@@ -13,7 +13,8 @@ Servo triggerServo;
 int hallState = 0;
 int cycle = 0;
 int active = 0;
-
+enum states {BASE_MOVING, BASE_ALIGN, TOWER_MOVING, NONE};
+states state = NONE;
 int i = 0;
 int j = 0;
 int EXPECTED_PIXEL_COUNT; //Number of pixels the Arduino will receive
@@ -29,7 +30,7 @@ Serial.begin(9600);              //Starting serial communication
 
 
 CAPTURES_PER_STRIP = 5; 
-EXPECTED_PIXEL_COUNT = 5;
+EXPECTED_PIXEL_COUNT = 25;
 triggerServo.attach(13);
 triggerServo.write(90);
 attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
@@ -64,7 +65,7 @@ void loop() {
        
        //PaintBot Control Code Goes Here
        
-       towerMoving = 1;       
+       state = TOWER_MOVING;       
        //commandPItoCapture();// will have to be integrated with the movement of tower
        // Receives data for next cycle
        while (Serial.available() == 0){
@@ -153,25 +154,26 @@ void getNextStripData() {
 
 void magnet_detect()//This function is called whenever a magnet/interrupt is detected by the arduino
  {
-   if(towerMoving == 1){
    
-     
-     Serial.print("C");    
-   
-   
-
+   if(state = TOWER_MOVING){  
+   }
    if (data[j] == 1){
      triggerServo.write(0);
    } else {
      triggerServo.write(180); 
    }
    j++;
-   if (j == 5){
-     j = 0;
-   } 
-   }
-    
+   if (j%5 ==0)
+     Serial.print("C");
+     else{
+     Serial.print("T");
+     }
+   if (j == 25)
+     j = 0;       
+  
  }
+    
+ 
  
 
 

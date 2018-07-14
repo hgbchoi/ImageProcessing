@@ -49,10 +49,18 @@ def oneDimensionalize(anArray):
                 oneDimensional.append(1)
             else :
                 oneDimensional.append(0)
-    return oneDimensional;
+    return oneDimensional
     #Will take processed array as param of the whole strip an return an array of strip heights'
     
-
+def listify(anArray):
+    
+    oneDimensional = []
+    for i in range (0, len(anArray)) :
+            if (anArray[i] == 1) :
+                oneDimensional.append(1)
+            else :
+                oneDimensional.append(0)
+    return oneDimensional
 
 #anArray: fully processed array matching the height of the full cycle
 #stripCount: How many tape strips are in the cycle
