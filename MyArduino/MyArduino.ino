@@ -8,36 +8,40 @@
 #include <Servo.h>
 
 
+//Trigger Servo
 Servo triggerServo;
 
+//Globals
 int hallState = 0;
 int cycle = 0;
 int active = 0;
-enum states {BASE_MOVING, BASE_ALIGN, TOWER_MOVING, NONE};
-states state = NONE;
 int i = 0;
 int j = 0;
 int EXPECTED_PIXEL_COUNT; //Number of pixels the Arduino will receive
 int CAPTURES_PER_STRIP; //Number of images to Capture in one cycle
-int data[500]; //Buffer for pixel data
+int data[100]; //Buffer for pixel data
 char byteReceived = '0'; //Byte received from PI
 
-byte towerMoving = 0;
+
+//PaintBot States
+enum states {BASE_MOVING, BASE_ALIGN, TOWER_MOVING, NONE};
+states state = NONE;
+
 
 void setup() {
   
-Serial.begin(9600);              //Starting serial communication
+Serial.begin(9600); //Starting serial communication
 
 
-CAPTURES_PER_STRIP = 5; 
-EXPECTED_PIXEL_COUNT = 25;
+CAPTURES_PER_STRIP = 5; // Number of images that will be captured by PI (only needed if not using hall effect) 
+EXPECTED_PIXEL_COUNT = 25; // Number of bytes expected to receive from the PI
+
 triggerServo.attach(13);
 triggerServo.write(90);
-attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
 
+attachInterrupt(0, magnet_detect, CHANGE);//Initialize the intterrupt pin (Arduino digital pin 2)
 pinMode (7, INPUT);
 
- 
 }
 
   
@@ -47,14 +51,14 @@ void loop() {
     i = 0;
     j = 0;
     
-      activeStatePB();
-      memset(data,0,sizeof(data));
+      activeStatePB(); //Check for on/off bytes 
+      memset(data,0,sizeof(data)); //set data array to be all 0
      
      while (active == 1){
-       Serial.print('S');
        
-       byteReceived = Serial.read();
+       Serial.print('S'); //Send start byte to PI
        
+       //Wait until PI sends start byte for confirmation
        while (byteReceived != 'S'){
        
           byteReceived = Serial.read(); 
@@ -65,9 +69,12 @@ void loop() {
        
        //PaintBot Control Code Goes Here
        
+       
+       //Set state to tower moving when base is aligned and ready for tower movement
        state = TOWER_MOVING;       
        //commandPItoCapture();// will have to be integrated with the movement of tower
        // Receives data for next cycle
+       
        while (Serial.available() == 0){
          delay(100);
        }
@@ -75,9 +82,7 @@ void loop() {
        if (byteReceived == 'D'){
        getNextStripData();
        } else if (byteReceived == 'N'){
-          active = 0;
-           i = 0;
-           cycle = 0;
+         reset();
        }
        cycle++;         
       }
@@ -93,15 +98,13 @@ void activeStatePB(){
          active = 1;
          break; 
        case 'N':
-         active = 0;
-         i = 0;
-         cycle = 0;
+         reset();
          return;
     }
 }
-
 }
 
+//Only needed when not using Hall Effect
 void commandPItoCapture() {
   int numCaptures = 0;
   
@@ -112,9 +115,7 @@ void commandPItoCapture() {
     if (Serial.available() > 0) {
     byteReceived = Serial.read();
     if (byteReceived == 'N'){
-      active = 0;
-      i = 0;
-      cycle = 0;
+      reset();
       return;
       
       }
@@ -124,6 +125,7 @@ void commandPItoCapture() {
 }
 
 
+//Run at the end of the tower movement (reaching top or bottom) ask PI for the data to be used for the next strip
 void getNextStripData() {
   
   delay(2000);
@@ -136,11 +138,8 @@ void getNextStripData() {
      byteReceived = Serial.read();
      switch (byteReceived){        
          case 'N':
-            active = 0;
-            i = 0;
-            cycle = 0;
-          return;
-          default :
+         reset();
+         default :
             data[i] = byteReceived + 0 ;
             bytes_read++;
             i++;                  
@@ -154,27 +153,39 @@ void getNextStripData() {
 
 void magnet_detect()//This function is called whenever a magnet/interrupt is detected by the arduino
  {
-   
-   if(state = TOWER_MOVING){  
+   if (Serial.available() == 0){
+     if (Serial.read() == 'N'){
+         reset();
+         
+     }
    }
+   if(state = TOWER_MOVING){  
+   
    if (data[j] == 1){
      triggerServo.write(0);
    } else {
      triggerServo.write(180); 
    }
    j++;
-   if (j%5 ==0)
-     Serial.print("C");
+   if (j%5 == 0)
+     Serial.print("C"); //Stands for Capture
      else{
-     Serial.print("T");
+     Serial.print("T"); //Stands for Triggered
      }
    if (j == 25)
      j = 0;       
-  
+ 
  }
-    
+} 
  
- 
+//Reset some globals
+void reset() {
+   active = 0;
+   i = 0;
+   j = 0;
+   cycle = 0;
+}
+
 
 
 
