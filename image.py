@@ -1,5 +1,6 @@
 # Import the necessary packages
 import numpy as np
+import RPi.GPIO as GPIO
 import myFunc as mf
 import picamera
 import time
@@ -10,16 +11,24 @@ import struct
 
 ser = serial.Serial('/dev/ttyACM0',9600, timeout = 1)
 byteReceived = '0'
+oneDArray = [];
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(12, GPIO.OUT)
+p = GPIO.PWM(12, 50)
+p.start(7.5)
+
 
 def take_image():
     
         with picamera.PiCamera() as camera:
            
            
-            camera.resolution = (500,500)
+            camera.resolution = (200,100)
             camera.start_preview()
-            time.sleep(1)
+            time.sleep(0.2)
             camera.capture("green_tape.png")
+
 
 
 while True:
@@ -63,26 +72,27 @@ while True:
             byteReceived = '0'            
             take_image()
             image = cv2.imread('green_tape.png')
-            image = cv2.resize(image, (30, 30))
+            image = cv2.resize(image, (30, 5))
             image = mf.isolateColors(image, 10)
+            height, width, channels = image.shape;
             
             if numCaptures == 0:
-                fullArray = np.zeros((image.shape[0] * CAPTURES_PER_STRIP, image.shape[1]))
+                fullArray = np.zeros((height * CAPTURES_PER_STRIP))
                     
 
             gray_image = mf.convertToGrayScale(image)
-            mArray = mf.mapToBinary(gray_image)
-            tempStripHeight = mf.detectStripHeight(mArray)
+            gray_image = mf.oneDimensionalize(gray_image)
+            tempStripHeight = mf.detectStripIndex(gray_image)
             
             if tempStripHeight != -1 :
-                stripHeights.append(tempStripHeight + numCaptures*image.shape[1])
+                stripHeights.append(tempStripHeight + numCaptures*height)
                 stripCount += 1
             
-            fullArray[image.shape[0]*numCaptures:image.shape[0]*(numCaptures + 1) - 1, 0:image.shape[1]-1] = mArray[0:image.shape[0] - 1, 0:image.shape[1] - 1]
+            fullArray[height*numCaptures:height*(numCaptures + 1)] = gray_image[0:height]
                   		            
             numCaptures += 1
 
-
+        ser.write(b'D')
         while (byteReceived != b'R') and (byteReceived != b'S'):
              try:
                 byteReceived = ser.read().strip()
@@ -94,7 +104,10 @@ while True:
         if (byteReceived == b'R'):
             
             byteReceived = '0'
-            fullArray = mf.fillBetweenStrips(fullArray, stripCount, stripHeights)
-            ser.write(mf.oneDimensionalize(fullArray));
-            print(mf.oneDimensionalize(fullArray));
+            oneDArray = mf.fillBetweenStrips1D(fullArray, stripCount, stripHeights)
+            oneDArray = mf.listify(oneDArray)
+            ser.write(oneDArray)
+            print(oneDArray)
+            print("Data Length: " +  str(len(oneDArray)))
      
+  

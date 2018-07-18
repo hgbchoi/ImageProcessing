@@ -9,11 +9,11 @@ def isolateColors(image, thresh):
     height, width, channels = image.shape
 	# iterate over every pixel
     
-    for x in range(0 , width-1):
-        for y in range(0, height-1):
+    for x in range(0 , width):
+        for y in range(0, height):
             blue, green, red = image[y, x]		
-            if green > red - 10 + thresh and green > blue + thresh :
-                image[y, x] = 255, 255, 255
+            if green > red - 7 + thresh and green > blue + thresh :
+                image[y, x] = 1, 1, 1
             else :
                 image[y, x] = 0, 0, 0
 
@@ -33,19 +33,34 @@ def detectStripHeight(anArray):
             if anArray[y, x] == 1 and anArray[y + 1, x + 1] == 1 and anArray[y + 1, x] == 1 and anArray[y, x + 1] == 1:
                 return y
     return -1
-             
+
+def detectStripIndex(anArray):
+    for i in range(len(anArray)):
+        if (anArray[i] == 1):
+                return i;
+            
+    return -1;
+
 def oneDimensionalize(anArray):
     
     oneDimensional = []
-    for i in range (0, anArray.shape[0] - 1) :
-            if (anArray[i, :].mean() > 0.1) :
+    for i in range (0, anArray.shape[0]) :
+            if (anArray[i, :].mean() > 0.2) :
                 oneDimensional.append(1)
             else :
                 oneDimensional.append(0)
-    return oneDimensional;
+    return oneDimensional
     #Will take processed array as param of the whole strip an return an array of strip heights'
     
-
+def listify(anArray):
+    
+    oneDimensional = []
+    for i in range (0, len(anArray)) :
+            if (anArray[i] == 1) :
+                oneDimensional.append(1)
+            else :
+                oneDimensional.append(0)
+    return oneDimensional
 
 #anArray: fully processed array matching the height of the full cycle
 #stripCount: How many tape strips are in the cycle
@@ -60,6 +75,16 @@ def fillBetweenStrips(anArray, stripCount, stripHeights):
         for i in range (stripHeights[strips], stripHeights[strips + 1]):
             for j in range (0, width):
                 anArray[i, j] = 1
+        stripCount -= 2
+        strips += 2
+    return anArray
+
+def fillBetweenStrips1D(anArray, stripCount, stripHeights):
+
+    strips = 0
+    while stripCount >= 2:
+        for i in range (stripHeights[strips], stripHeights[strips + 1]):
+            anArray[i] = 1
         stripCount -= 2
         strips += 2
     return anArray
