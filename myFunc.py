@@ -88,3 +88,11 @@ def fillBetweenStrips1D(anArray, stripCount, stripHeights):
         stripCount -= 2
         strips += 2
     return anArray
+
+def reverseArray (anArray):
+    length = len(anArray)
+    for i in range (0, length):
+        temp = anArray[i]
+        anArray[i] = anArray[length - i - 1]
+        anArray[length - i - 1] = temp
+    return anArray

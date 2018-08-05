@@ -13,12 +13,6 @@ ser = serial.Serial('/dev/ttyACM0',9600, timeout = 1)
 byteReceived = '0'
 oneDArray = [];
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(12, GPIO.OUT)
-p = GPIO.PWM(12, 50)
-p.start(7.5)
-
-
 def take_image():
     
         with picamera.PiCamera() as camera:
@@ -26,14 +20,13 @@ def take_image():
            
             camera.resolution = (200,100)
             camera.start_preview()
-            time.sleep(0.2)
             camera.capture("green_tape.png")
 
 
 
 while True:
 	
-	CAPTURES_PER_STRIP = 5
+	CAPTURES_PER_STRIP = 6
     
 	
 	
@@ -72,7 +65,7 @@ while True:
             byteReceived = '0'            
             take_image()
             image = cv2.imread('green_tape.png')
-            image = cv2.resize(image, (30, 5))
+            image = cv2.resize(image, (30, 15))
             image = mf.isolateColors(image, 10)
             height, width, channels = image.shape;
             
@@ -82,6 +75,12 @@ while True:
 
             gray_image = mf.convertToGrayScale(image)
             gray_image = mf.oneDimensionalize(gray_image)
+            print('*******************************')
+            print(gray_image)
+            #gray_image = mf.reverseArray(gray_image)
+            gray_image.reverse()
+            print(gray_image)
+            print('*******************************')
             tempStripHeight = mf.detectStripIndex(gray_image)
             
             if tempStripHeight != -1 :
@@ -92,6 +91,14 @@ while True:
                   		            
             numCaptures += 1
 
+        while (byteReceived != b'D'):
+             try:
+                byteReceived = ser.read().strip()
+                byteReceived = byteReceived.strip()
+                print("Waiting for D: " + byteReceived)
+             except:
+                pass
+        
         ser.write(b'D')
         while (byteReceived != b'R') and (byteReceived != b'S'):
              try:
