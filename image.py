@@ -91,15 +91,15 @@ while True:
                   		            
             numCaptures += 1
 
-        while (byteReceived != b'D'):
+        while (byteReceived != b'D') and (byteReceived != b'S'):
              try:
                 byteReceived = ser.read().strip()
                 byteReceived = byteReceived.strip()
                 print("Waiting for D: " + byteReceived)
              except:
                 pass
-        
-        ser.write(b'D')
+        if (byteReceived == b'D'):
+        	ser.write(b'D')
         while (byteReceived != b'R') and (byteReceived != b'S'):
              try:
                 byteReceived = ser.read().strip()
